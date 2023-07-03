@@ -1,3 +1,26 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+* {
+  scrollbar-width: auto;
+  scrollbar-color: #161616 #e7e7e7;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #e7e7e7;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #161616;
+  border-radius: 20px;
+  border: 3px none #ffffff;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+}

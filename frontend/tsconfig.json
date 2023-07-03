@@ -20,7 +20,7 @@
     "paths": {
       "@base/*": ["./*"],
       "@src/*": ["./src/*"],
-      "@types": ["./types.d.ts"],
+      "@types": ["index.d.ts"],
       "@assets/*": ["./src/assets/*"],
       "@libs/*": ["./src/libs/*"],
       "@utils/*": ["./src/utils/*"],
@@ -28,6 +28,6 @@
       "@components/*": ["./src/components/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "index.d.ts"],
   "references": [{ "path": "./tsconfig.vite.json" }]
 }
