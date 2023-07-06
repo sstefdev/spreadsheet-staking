@@ -9,7 +9,7 @@ export const getStatus = async (statusId: string) => {
     return response
   } catch (error: any) {
     console.error('Error fetching spreadsheet status', error)
-    showToast('error', error.message)
+    showToast('error', 'Error getting the status of spreadsheet')
   }
 }
 
@@ -29,7 +29,7 @@ export const saveSheet = async (
     return response
   } catch (error: any) {
     console.error('Error saving spreadsheet', error)
-    showToast('error', error.message)
+    showToast('error', `Error saving ${editingCell} cell, please try again...`)
     setError((prevError) => [
       ...prevError,
       {

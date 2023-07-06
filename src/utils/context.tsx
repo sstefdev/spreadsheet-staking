@@ -10,8 +10,8 @@ interface AppContextProviderProps {
 
 const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const [cells, setCells] = useState<{ [address: string]: Cell }>({})
-  const [rowCount, setRowCount] = useState(14)
-  const [colCount, setColCount] = useState(3)
+  const [rowCount, setRowCount] = useState<number>(14)
+  const [colCount, setColCount] = useState<number>(3)
   const [cellsToSave, setCellsToSave] = useState<CellToSave[]>([])
   const [saving, setSaving] = useState<boolean>(false)
   const [error, setError] = useState<CellError[]>([])
@@ -22,7 +22,7 @@ const AppContextProvider = ({ children }: AppContextProviderProps) => {
       const sheet = await saveSheet(csvData, editingCell, setError)
 
       if (sheet?.status === 'DONE') {
-        showToast('success', 'Saved')
+        showToast('success', `Cell ${editingCell} saved successfully 👍`)
       }
 
       if (sheet?.id) {
@@ -37,16 +37,10 @@ const AppContextProvider = ({ children }: AppContextProviderProps) => {
       }
     } catch (error: any) {
       console.error('Error saving spreadsheet', error)
-      showToast('error', error.message)
     }
   }
 
   useEffect(() => {
-    // if (saving) {
-    //   showToast('info', 'Saving, please wait...', {
-    //     autoClose: false,
-    //   })
-    // }
     const checkAutoSave = async () => {
       let allCellsSaved = true
 
@@ -74,7 +68,7 @@ const AppContextProvider = ({ children }: AppContextProviderProps) => {
 
       if (allCellsSaved) {
         setSaving(false)
-        showToast('success', 'All cells saved successfully')
+        showToast('success', 'All cells saved successfully 🙌')
         setError([])
       }
     }

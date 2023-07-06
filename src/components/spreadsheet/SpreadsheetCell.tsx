@@ -16,6 +16,7 @@ interface SpreadsheetCellProps {
 const SpreadsheetCell: FC<SpreadsheetCellProps> = ({
   icon,
   value,
+  column,
   address,
   isEditing,
   handleBlur,
@@ -32,12 +33,17 @@ const SpreadsheetCell: FC<SpreadsheetCellProps> = ({
         isEditing && 'drop-shadow-2xl border-3 border-gray-300'
       }`}
     >
+      {column === 'A' && (
+        <p className='absolute left-2 bg-gray-200 w-[40px] p-[4px] border border-gray-300 font-mono text-l rounded-[10px]'>
+          {address.substring(1)}
+        </p>
+      )}
       <input
         className={`w-full h-full text-center py-[20px] focus:outline-none bg-gray-100 pr-[8px] ${
           isEditing && '!bg-slate-100'
         } ${hasCellError && '!bg-red-200'}`}
         value={value}
-        onBlur={(e) => handleBlur(address, e.target.value)}
+        onBlur={(e) => e.target.value.length > 0 && handleBlur(address, e.target.value)}
         onChange={(e) => handleCellChange(address, e.target.value)}
         onClick={setCurrentEditingCell}
       />

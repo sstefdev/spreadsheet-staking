@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { WriteIcon } from '@assets/svg'
 import { useAppContext } from '@utils/useAppContext'
-import { evaluateFormula } from '@libs/index'
+import { evaluateFormula, extractDependencies, removeLeadingZeros } from '@libs/index'
 import SpreadsheetCell from './SpreadsheetCell'
 
 const SpreadsheetTable = () => {
@@ -10,33 +10,81 @@ const SpreadsheetTable = () => {
   const [editingCell, setEditingCell] = useState<string>('')
 
   const handleCellChange = (address: string, value: string) => {
-    setCells((prevCells) => ({
-      ...prevCells,
-      [address]: {
-        ...prevCells[address],
-        value,
-      },
-    }))
+    let formattedValue = value
+    let dependencies: any[] = []
+
+    if (typeof value === 'string' && value.startsWith('=')) {
+      formattedValue = removeLeadingZeros(value)
+      dependencies = value.substring(1).split(',')
+    }
+
+    setCells((prevCells) => {
+      const cell = prevCells[address]
+
+      if (cell?.value !== formattedValue) {
+        return {
+          ...prevCells,
+          [address]: {
+            ...cell,
+            value: formattedValue,
+            previousValue: cell?.value,
+            dependencies: dependencies.length > 0 ? dependencies : cell?.dependencies,
+          },
+        }
+      } else {
+        return {
+          ...prevCells,
+          [address]: {
+            ...cell,
+            previousValue: cell?.previousValue,
+          },
+        }
+      }
+    })
   }
 
   const handleBlur = (address: string, expression: string) => {
+    checkDependecies()
     setSaving(true)
+
     if (!expression.startsWith('=')) {
       handleCellChange(address, expression)
       handleAutoSave(editingCell)
       return
-    } else {
-      const result = evaluateFormula(cells, expression.substring(1))
-      handleCellChange(address, result)
-      handleAutoSave(editingCell)
     }
 
-    for (const dependentAddress in cells) {
-      if (
-        cells.hasOwnProperty(dependentAddress) &&
-        cells[dependentAddress].dependencies?.includes(address)
-      ) {
-        handleBlur(dependentAddress, `=${cells[dependentAddress].value}`)
+    const result = evaluateFormula(cells, expression.substring(1))
+    handleCellChange(address, result)
+    handleAutoSave(editingCell)
+  }
+
+  const checkDependecies = () => {
+    let dependenciesExtracted: string[] = []
+
+    for (const cell in cells) {
+      if (cells[cell]?.dependencies?.length > 0) {
+        const dependencies = cells[cell].dependencies
+        for (const dependency of dependencies) {
+          dependenciesExtracted = extractDependencies(removeLeadingZeros(dependency))
+        }
+
+        for (const dependency of dependenciesExtracted) {
+          const value = cells[dependency]?.value
+          const previousValue = cells[dependency]?.previousValue
+
+          if (value !== previousValue && previousValue !== undefined) {
+            const result = evaluateFormula(cells, cells[cell]?.dependencies[0])
+            setCells((prevCells) => {
+              return {
+                ...prevCells,
+                [cell]: {
+                  ...cells[cell],
+                  value: result,
+                },
+              }
+            })
+          }
+        }
       }
     }
   }
